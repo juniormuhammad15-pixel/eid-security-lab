@@ -1,0 +1,48 @@
+plugins {
+    id 'com.android.application'
+    id 'kotlin-android'
+    id 'com.google.gms.google-services'
+}
+
+android {
+    compileSdk 34
+    namespace "com.eidlab.cam"
+
+    defaultConfig {
+        applicationId "com.eidlab.cam"
+        minSdk 26
+        targetSdk 34
+        versionCode 1
+        versionName "1.0"
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled true
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+            signingConfig signingConfigs.debug
+        }
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+    kotlinOptions { jvmTarget = '1.8' }
+}
+
+dependencies {
+    // WebRTC for video streaming
+    implementation 'io.github.webrtc-sdk:android:114.5735.07'
+
+    // Firebase push notifications (FCM)
+    implementation platform('com.google.firebase:firebase-bom:32.7.0')
+    implementation 'com.google.firebase:firebase-messaging-ktx'
+
+    // WebSocket
+    implementation 'com.squareup.okhttp3:okhttp:4.12.0'
+
+    // Android
+    implementation 'androidx.appcompat:appcompat:1.6.1'
+    implementation 'androidx.core:core-ktx:1.12.0'
+}
