@@ -1,0 +1,11 @@
+{
+  "name": "eid-security-lab",
+  "version": "1.0.0",
+  "description": "Eid Lab Security System — Dashboard & Signaling Server",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "engines": { "node": ">=16" },
+  "license": "MIT"
+}
