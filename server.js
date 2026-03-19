@@ -332,32 +332,90 @@ function decodeWS(buf) {
   return buf.slice(offset, offset + len).toString();
 }
 
-// ── FCM Push ─────────────────────────────────────────
-function sendFCM(token, payload) {
-  return new Promise(resolve => {
-    if (!FCM_SERVER_KEY) { resolve(false); return; }
-    const body = JSON.stringify({
-      to: token,
-      priority: 'high',
-      data: payload,
-      android: { priority: 'high' }
-    });
-    const opts = {
-      hostname: 'fcm.googleapis.com',
-      path: '/fcm/send',
-      method: 'POST',
-      headers: {
-        'Authorization': `key=${FCM_SERVER_KEY}`,
-        'Content-Type': 'application/json',
-        'Content-Length': Buffer.byteLength(body)
-      }
+// ── FCM Push V1 (uses service account JSON) ───────────
+// Load service account from env var FIREBASE_SERVICE_ACCOUNT (JSON string)
+// or from file service-account.json in project root
+let serviceAccount = null;
+try {
+  if (process.env.FIREBASE_SERVICE_ACCOUNT) {
+    serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT);
+  } else if (fs.existsSync('./service-account.json')) {
+    serviceAccount = JSON.parse(fs.readFileSync('./service-account.json', 'utf8'));
+  }
+} catch(e) { console.log('FCM service account not loaded:', e.message); }
+
+// Get OAuth2 access token from service account
+function getAccessToken() {
+  return new Promise((resolve, reject) => {
+    if (!serviceAccount) { resolve(null); return; }
+    const now = Math.floor(Date.now() / 1000);
+    const claim = {
+      iss: serviceAccount.client_email,
+      scope: 'https://www.googleapis.com/auth/firebase.messaging',
+      aud: 'https://oauth2.googleapis.com/token',
+      iat: now,
+      exp: now + 3600
     };
-    const req = https.request(opts, r => {
-      r.on('data', () => {}); r.on('end', () => resolve(r.statusCode === 200));
+    // Create JWT
+    const crypto = require('crypto');
+    const header = Buffer.from(JSON.stringify({ alg: 'RS256', typ: 'JWT' })).toString('base64url');
+    const payload = Buffer.from(JSON.stringify(claim)).toString('base64url');
+    const unsigned = `${header}.${payload}`;
+    const sign = crypto.createSign('RSA-SHA256');
+    sign.update(unsigned);
+    const sig = sign.sign(serviceAccount.private_key, 'base64url');
+    const jwt = `${unsigned}.${sig}`;
+
+    // Exchange JWT for access token
+    const body = `grant_type=urn%3Aietf%3Aparams%3Aoauth%3Agrant-type%3Ajwt-bearer&assertion=${jwt}`;
+    const req = https.request({
+      hostname: 'oauth2.googleapis.com', path: '/token', method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
+    }, res => {
+      let data = '';
+      res.on('data', d => data += d);
+      res.on('end', () => {
+        try { resolve(JSON.parse(data).access_token); }
+        catch(e) { resolve(null); }
+      });
     });
-    req.on('error', () => resolve(false));
+    req.on('error', () => resolve(null));
     req.write(body); req.end();
   });
+}
+
+async function sendFCM(token, payload) {
+  if (!serviceAccount) return false;
+  try {
+    const accessToken = await getAccessToken();
+    if (!accessToken) return false;
+    const projectId = serviceAccount.project_id;
+    const body = JSON.stringify({
+      message: {
+        token,
+        data: Object.fromEntries(Object.entries(payload).map(([k,v])=>[k,String(v)])),
+        android: { priority: 'high' }
+      }
+    });
+    return new Promise(resolve => {
+      const req = https.request({
+        hostname: 'fcm.googleapis.com',
+        path: `/v1/projects/${projectId}/messages:send`,
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${accessToken}`,
+          'Content-Type': 'application/json',
+          'Content-Length': Buffer.byteLength(body)
+        }
+      }, r => {
+        let data = '';
+        r.on('data', d => data += d);
+        r.on('end', () => resolve(r.statusCode === 200));
+      });
+      req.on('error', () => resolve(false));
+      req.write(body); req.end();
+    });
+  } catch(e) { return false; }
 }
 
 // ── Start ─────────────────────────────────────────────
